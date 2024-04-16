@@ -16,11 +16,26 @@ import { TableCell, TableRow } from '@/components/ui/table'
 
 import { OrderDetails } from './order-details'
 
+export const ORDER_STATUS: Record<number, OrderStatus> = {
+  0: 'pending',
+  1: 'canceled',
+  2: 'processing',
+  3: 'delivering',
+  4: 'delivered',
+}
+export const REVERT_ORDER_STATUS: Record<OrderStatus, number> = {
+  pending: 0,
+  canceled: 1,
+  processing: 2,
+  delivering: 3,
+  delivered: 4,
+}
+
 interface OrderTableRowProps {
   order: {
     orderId: string
     createdAt: string
-    status: 'pending' | 'canceled' | 'processing' | 'delivering' | 'delivered'
+    status: number
     customerName: string
     total: number
   }
@@ -43,11 +58,11 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
 
       queryClient.setQueryData<GetOrdersResponse>(cacheKey, {
         ...cacheData,
-        orders: cacheData.orders.map((order) => {
+        results: cacheData.results.map((order) => {
           if (order.orderId === orderId) {
             return {
               ...order,
-              status,
+              status: REVERT_ORDER_STATUS[status],
             }
           } else {
             return order
@@ -112,7 +127,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
         })}
       </TableCell>
       <TableCell>
-        <OrderStatus status={order.status} />
+        <OrderStatus status={ORDER_STATUS[order.status]} />
       </TableCell>
       <TableCell className="font-medium">{order.customerName}</TableCell>
       <TableCell className="font-medium">
@@ -122,7 +137,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
         })}
       </TableCell>
       <TableCell>
-        {order.status === 'pending' && (
+        {ORDER_STATUS[order.status] === 'pending' && (
           <Button
             disabled={isApprovingOrder}
             onClick={() => approveOrderFn({ orderId: order.orderId })}
@@ -133,7 +148,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
             Aprovar
           </Button>
         )}
-        {order.status === 'processing' && (
+        {ORDER_STATUS[order.status] === 'processing' && (
           <Button
             disabled={isDispatchingOrder}
             onClick={() => dispatchOrderFn({ orderId: order.orderId })}
@@ -144,7 +159,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
             Em entrega
           </Button>
         )}
-        {order.status === 'delivering' && (
+        {ORDER_STATUS[order.status] === 'delivering' && (
           <Button
             disabled={isDeliveringOrder}
             onClick={() => deliverOrderFn({ orderId: order.orderId })}
@@ -159,7 +174,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
       <TableCell>
         <Button
           disabled={
-            !['pending', 'processing'].includes(order.status) ||
+            !['pending', 'processing'].includes(ORDER_STATUS[order.status]) ||
             isCancelingOrder
           }
           variant="ghost"

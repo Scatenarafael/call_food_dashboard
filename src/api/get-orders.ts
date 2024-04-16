@@ -1,17 +1,18 @@
 import { api } from '@/lib/axios'
+import { ORDER_STATUS } from '@/pages/app/orders/order-table-row'
 
 export interface GetOrdersQuery {
   pageIndex?: number | null
   orderId?: string | null
   customerName?: string | null
-  status?: string | null
+  status?: number | 'all' | null
 }
 
 export interface GetOrdersResponse {
-  orders: {
+  results: {
     orderId: string
     createdAt: string
-    status: 'pending' | 'canceled' | 'processing' | 'delivering' | 'delivered'
+    status: number
     customerName: string
     total: number
   }[]
@@ -28,12 +29,13 @@ export async function getOrders({
   customerName,
   status,
 }: GetOrdersQuery) {
+  const page = (pageIndex || 0) + 1
   const response = await api.get<GetOrdersResponse>('/orders', {
     params: {
-      pageIndex,
+      page,
       orderId,
       customerName,
-      status: status === 'all' ? null : status,
+      status: status === 'all' || !status ? null : ORDER_STATUS[status],
     },
   })
   return response.data

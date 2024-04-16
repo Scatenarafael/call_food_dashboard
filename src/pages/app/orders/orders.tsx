@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 
 import { getOrders } from '@/api/get-orders'
+import { OrderStatus } from '@/components/order-status'
 import { Pagination } from '@/components/pagination'
 import {
   Table,
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/table'
 
 import { OrderTableFilters } from './order-table-filters'
-import { OrderTableRow } from './order-table-row'
+import { OrderTableRow, REVERT_ORDER_STATUS } from './order-table-row'
 import { OrderTableSkeleton } from './order-table-skeleton'
 
 export function Orders() {
@@ -22,7 +23,7 @@ export function Orders() {
 
   const orderId = searchParams.get('orderId')
   const customerName = searchParams.get('customerName')
-  const status = searchParams.get('status')
+  const status = searchParams.get('status') as OrderStatus
 
   const pageIndex = z.coerce
     .number()
@@ -31,7 +32,13 @@ export function Orders() {
 
   const { data: result, isLoading: isLoadingOrders } = useQuery({
     queryKey: ['orders', pageIndex, orderId, customerName, status],
-    queryFn: () => getOrders({ pageIndex, orderId, customerName, status }),
+    queryFn: () =>
+      getOrders({
+        pageIndex,
+        orderId,
+        customerName,
+        status: REVERT_ORDER_STATUS[status],
+      }),
   })
 
   function handlePaginate(pageIndex: number) {
@@ -54,8 +61,8 @@ export function Orders() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[64px]"></TableHead>
-                  <TableHead className="w-[140px]">Identificador</TableHead>
-                  <TableHead className="w-[180px]">Realizado há</TableHead>
+                  <TableHead className="w-[300px]">Identificador</TableHead>
+                  <TableHead className="w-[180px]">Realizado</TableHead>
                   <TableHead className="w-[140px]">Status</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead className="w-[140px]">Total do pedido</TableHead>
@@ -66,9 +73,9 @@ export function Orders() {
               <TableBody>
                 {isLoadingOrders && <OrderTableSkeleton />}
                 {result &&
-                  result.orders &&
-                  result.orders.length > 0 &&
-                  result.orders.map((order) => {
+                  result.results &&
+                  result.results.length > 0 &&
+                  result.results.map((order) => {
                     return <OrderTableRow key={order.orderId} order={order} />
                   })}
                 {/* {Array.from({ length: 10 }).map((_, i) => {
