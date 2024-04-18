@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/table'
 
 import { OrderDetailsSkeleton } from './order-details-skeleton'
+import { ORDER_STATUS } from './order-table-row'
 
 export interface OrderDetailsProps {
   orderId: string
@@ -48,13 +49,13 @@ export function OrderDetails({ orderId, opened }: OrderDetailsProps) {
               <TableRow>
                 <TableCell className="text-muted-foreground">Status</TableCell>
                 <TableCell className="flex justify-end">
-                  <OrderStatus status={order.status} />
+                  <OrderStatus status={ORDER_STATUS[order.status]} />
                 </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="text-muted-foreground">Cliente</TableCell>
                 <TableCell className="flex justify-end">
-                  {order.customer.name}
+                  {order.customer.username}
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -125,7 +126,7 @@ export function OrderDetails({ orderId, opened }: OrderDetailsProps) {
               <TableRow>
                 <TableCell colSpan={3}>Total do pedido:</TableCell>
                 <TableCell className="text-right font-medium">
-                  {(order.totalInCents / 100).toLocaleString('pt-BR', {
+                  {(order.total / 100).toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                   })}
