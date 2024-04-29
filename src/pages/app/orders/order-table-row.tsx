@@ -118,7 +118,8 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
         </Dialog>
       </TableCell>
       <TableCell className="font-mono text-xs font-medium">
-        ...{order.orderId.split('-')[order.orderId.split('-').length - 1]}
+        {order.orderId}
+        {/* ...{order.orderId.split('-')[order.orderId.split('-').length - 1]} */}
       </TableCell>
       <TableCell className="text-muted-foreground">
         {formatDistanceToNow(order.createdAt, {

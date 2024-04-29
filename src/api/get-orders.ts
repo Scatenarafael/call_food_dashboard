@@ -30,10 +30,11 @@ export async function getOrders({
   status,
 }: GetOrdersQuery) {
   const page = (pageIndex || 0) + 1
+  const id = orderId
   const response = await api.get<GetOrdersResponse>('/orders', {
     params: {
       page,
-      orderId,
+      id,
       customerName,
       status: status === 'all' || !status ? null : ORDER_STATUS[status],
     },

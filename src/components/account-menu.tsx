@@ -42,8 +42,6 @@ export function AccountMenu() {
     },
   })
 
-  console.log('profile >>> ', profile)
-  console.log('isLoadingProfile >>> ', isLoadingProfile)
   return (
     <Dialog>
       <DropdownMenu>
@@ -55,7 +53,7 @@ export function AccountMenu() {
             {isLoadingProfile ? (
               <Skeleton className="h-4 w-40" />
             ) : (
-              profile?.restaurants[0].name
+              profile?.restaurants[0]?.name || 'No restaurant'
             )}
             <ChevronDown />
           </Button>

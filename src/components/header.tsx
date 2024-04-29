@@ -1,4 +1,4 @@
-import { ChefHat, Home, UtensilsCrossed } from 'lucide-react'
+import { ChefHat, Ham, Home, UtensilsCrossed } from 'lucide-react'
 
 import { AccountMenu } from './account-menu'
 import { NavLink } from './nav-link'
@@ -21,6 +21,10 @@ export function Header() {
           <NavLink to="/orders">
             <UtensilsCrossed className="h-4 w-4" />
             Pedidos
+          </NavLink>
+          <NavLink to="/products">
+            <Ham className="h-4 w-4" />
+            Produtos
           </NavLink>
         </nav>
         <div className="ml-auto flex items-center gap-2">
