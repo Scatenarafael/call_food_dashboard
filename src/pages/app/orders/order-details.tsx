@@ -99,7 +99,7 @@ export function OrderDetails({ orderId, opened }: OrderDetailsProps) {
               {order.orderItems.map((item) => {
                 return (
                   <TableRow key={item.id}>
-                    <TableCell>{item.product.name}</TableCell>
+                    <TableCell>{item.product_retrieve.name}</TableCell>
                     <TableCell className="text-right">
                       {item.quantity}
                     </TableCell>

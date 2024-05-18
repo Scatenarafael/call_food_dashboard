@@ -18,7 +18,7 @@ export interface GetOrderDetailResponse {
     id: string
     priceInCents: number
     quantity: number
-    product: {
+    product_retrieve: {
       name: string
     }
   }[]

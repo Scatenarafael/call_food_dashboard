@@ -1,10 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 
 import { getProducts } from '@/api/get-products'
 import { Pagination } from '@/components/pagination'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -13,10 +16,12 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { ProductForm } from './product-form'
 import { ProductTableFilters } from './product-table-filters'
 import { ProductTableRow } from './product-table-row'
 
 export function Products() {
+  const [isCreationOpen, setIsCreationOpen] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
   const pageIndex = z.coerce
@@ -56,8 +61,17 @@ export function Products() {
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Produtos</h1>
         <div className="space-y-2.5">
-          <ProductTableFilters />
-
+          <div className="flex justify-between">
+            <ProductTableFilters />
+            <Dialog open={isCreationOpen} onOpenChange={setIsCreationOpen}>
+              <DialogTrigger asChild>
+                <Button className="font-bold" size="lg">
+                  Criar
+                </Button>
+              </DialogTrigger>
+              <ProductForm openCallback={setIsCreationOpen} />
+            </Dialog>
+          </div>
           <div className="rounded-md border">
             <Table>
               <TableHeader>

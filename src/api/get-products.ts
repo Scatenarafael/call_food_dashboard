@@ -12,6 +12,7 @@ export type ProductProps = {
   name: string
   description: string
   priceInCents: number
+  image: string
   created_at: string
   updated_at: string
   restaurant: string

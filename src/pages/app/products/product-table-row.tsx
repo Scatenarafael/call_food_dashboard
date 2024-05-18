@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { Pencil, Search } from 'lucide-react'
 import { useState } from 'react'
 
 import { ProductProps } from '@/api/get-products'
@@ -6,6 +6,9 @@ import { OrderStatus } from '@/components/order-status'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import { TableCell, TableRow } from '@/components/ui/table'
+
+import { ProductDetails } from './product-details'
+import { ProductForm } from './product-form'
 
 export const ORDER_STATUS: Record<number, OrderStatus> = {
   0: 'pending',
@@ -28,6 +31,7 @@ interface ProductTableRowProps {
 
 export function ProductTableRow({ product }: ProductTableRowProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [isCreationOpen, setIsCreationOpen] = useState(false)
 
   return (
     <TableRow>
@@ -36,10 +40,10 @@ export function ProductTableRow({ product }: ProductTableRowProps) {
           <DialogTrigger asChild>
             <Button variant="outline" size="xs">
               <Search className="h-3 w-3" />
-              <span className="sr-only">Detalhes do pedido</span>
+              <span className="sr-only">Detalhes do produto</span>
             </Button>
           </DialogTrigger>
-          {/* <OrderDetails orderId={order.orderId} opened={isDetailsOpen} /> */}
+          <ProductDetails productId={product.id} opened={isDetailsOpen} />
         </Dialog>
       </TableCell>
       <TableCell className="font-mono text-xs font-medium">
@@ -52,6 +56,17 @@ export function ProductTableRow({ product }: ProductTableRowProps) {
           style: 'currency',
           currency: 'BRL',
         })}
+      </TableCell>
+      <TableCell />
+      <TableCell className="font-medium">
+        <Dialog open={isCreationOpen} onOpenChange={setIsCreationOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="xs">
+              <Pencil className="h-3 w-3" />
+            </Button>
+          </DialogTrigger>
+          <ProductForm product={product} openCallback={setIsCreationOpen} />
+        </Dialog>
       </TableCell>
     </TableRow>
   )

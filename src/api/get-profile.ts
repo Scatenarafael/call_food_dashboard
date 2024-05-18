@@ -1,6 +1,7 @@
 import { api } from '@/lib/axios'
 
 export type RestaurantProfileProps = {
+  id: string
   name: string
   description: string
 }
