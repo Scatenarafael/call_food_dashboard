@@ -77,11 +77,11 @@ export function Products() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[64px]"></TableHead>
+                  <TableHead className="w-[84px]"></TableHead>
                   <TableHead className="w-[180px]">Identificador</TableHead>
                   <TableHead className="w-[180px]">Nome</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead className="w-[140px]">Preço</TableHead>
-                  <TableHead></TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>

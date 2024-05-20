@@ -128,6 +128,7 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
 
   function handleChooseIcon(e: ChangeEvent<HTMLInputElement>) {
     const files = (e.target as HTMLInputElement).files
+    console.log('files', files)
     if (files && files[0]) setImageURL(URL.createObjectURL(files[0]))
     if (files && files[0]) setValue('image', files[0])
   }
@@ -146,18 +147,30 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
               <TableRow>
                 <TableCell className="text-muted-foreground">Image</TableCell>
                 <TableCell className="flex items-center justify-end text-muted-foreground">
-                  <label htmlFor="iconImage">
-                    {!imageURL ? (
-                      // eslint-disable-next-line jsx-a11y/alt-text
-                      <Image className="h-5 w-5" />
-                    ) : (
+                  <label htmlFor="iconImage" className="cursor-pointer">
+                    {product && product.image ? (
                       <img
-                        src={imageURL}
+                        src={product.image}
                         width={100}
                         height={100}
                         alt="SiteTypeIcon"
-                        className="mx-auto content-evenly"
+                        className="mx-auto content-evenly rounded-lg"
                       />
+                    ) : (
+                      <>
+                        {!imageURL ? (
+                          // eslint-disable-next-line jsx-a11y/alt-text
+                          <Image className="h-5 w-5" />
+                        ) : (
+                          <img
+                            src={imageURL}
+                            width={100}
+                            height={100}
+                            alt="SiteTypeIcon"
+                            className="mx-auto content-evenly rounded-lg"
+                          />
+                        )}
+                      </>
                     )}
                   </label>
                   <input

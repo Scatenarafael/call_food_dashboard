@@ -8,6 +8,7 @@ export interface GetProductDetailResponse {
   id: string
   name: string
   description: string
+  image: string
   priceInCents: number
   created_at: string
   updated_at: string

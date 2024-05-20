@@ -35,6 +35,22 @@ export function ProductDetails({ productId, opened }: OrderDetailsProps) {
           <Table>
             <TableBody>
               <TableRow>
+                <TableCell className="text-muted-foreground">Image</TableCell>
+                <TableCell className="flex justify-end">
+                  {product && product.image ? (
+                    <img
+                      src={product.image}
+                      width={100}
+                      height={100}
+                      alt="SiteTypeIcon"
+                      className="content-evenly rounded-lg"
+                    />
+                  ) : (
+                    <Image className="h-5 w-5" />
+                  )}
+                </TableCell>
+              </TableRow>
+              <TableRow>
                 <TableCell className="text-muted-foreground">Nome</TableCell>
                 <TableCell className="flex justify-end">
                   {product.name}

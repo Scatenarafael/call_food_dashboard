@@ -1,4 +1,4 @@
-import { Pencil, Search } from 'lucide-react'
+import { Image, Pencil, Search } from 'lucide-react'
 import { useState } from 'react'
 
 import { ProductProps } from '@/api/get-products'
@@ -45,6 +45,19 @@ export function ProductTableRow({ product }: ProductTableRowProps) {
           </DialogTrigger>
           <ProductDetails productId={product.id} opened={isDetailsOpen} />
         </Dialog>
+      </TableCell>
+      <TableCell className="flex items-center justify-center">
+        {product && product.image ? (
+          <img
+            src={product.image}
+            width={50}
+            height={50}
+            alt="SiteTypeIcon"
+            className="mx-auto content-evenly rounded-lg"
+          />
+        ) : (
+          <Image className="h-5 w-5" />
+        )}
       </TableCell>
       <TableCell className="font-mono text-xs font-medium">
         ...{product.id.split('-')[product.id.split('-').length - 1]}
