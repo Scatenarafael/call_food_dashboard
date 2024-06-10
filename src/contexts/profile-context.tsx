@@ -1,52 +1,48 @@
+import { useQuery } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
+import { createContext, ReactNode, useEffect, useState } from 'react'
 
-import { GetProfileResponse, getProfile } from "@/api/get-profile";
-import { logout } from "@/api/logout";
-import { env } from "@/env";
-import { api } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { ReactNode, createContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-type ProfileContextData = {
-  profile?: GetProfileResponse
-  isLoadingProfile: boolean
-  activeRestaurant: ActiveRestaurantType | null
-  setActiveRestaurant: React.Dispatch<React.SetStateAction<ActiveRestaurantType | null>>
-};
-
-export const ProfileContext = createContext({} as ProfileContextData);
+import { getProfile, GetProfileResponse } from '@/api/get-profile'
+import { logout } from '@/api/logout'
+import { env } from '@/env'
+import { api } from '@/lib/axios'
 
 type AuthProviderProps = {
-  children: ReactNode;
-};
+  children: ReactNode
+}
 
 type ActiveRestaurantType = {
   id: string
   name: string
 }
 
+type ProfileContextData = {
+  profile?: GetProfileResponse
+  isLoadingProfile: boolean
+  activeRestaurant: ActiveRestaurantType | null
+  setActiveRestaurant: React.Dispatch<
+    React.SetStateAction<ActiveRestaurantType | null>
+  >
+}
+
+export const ProfileContext = createContext({} as ProfileContextData)
 
 export function ProfileProvider({ children }: AuthProviderProps) {
-  const [activeRestaurant, setActiveRestaurant] = useState<ActiveRestaurantType | null>(null)
+  const [activeRestaurant, setActiveRestaurant] =
+    useState<ActiveRestaurantType | null>(null)
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ['profile'],
+    queryKey: ['profile', activeRestaurant?.id],
     queryFn: getProfile,
   })
 
-  const navigate = useNavigate()
-
   useEffect(() => {
     if (!activeRestaurant) {
-      const localStorageRestaurant = localStorage.getItem("activeRestaurant")
+      const localStorageRestaurant = localStorage.getItem('activeRestaurant')
       if (localStorageRestaurant) {
         setActiveRestaurant(JSON.parse(localStorageRestaurant))
       }
     }
   }, [])
-
-
-
 
   let refreshing = false
 
@@ -57,6 +53,7 @@ export function ProfileProvider({ children }: AuthProviderProps) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (error: AxiosError<any>) => {
       console.log('window.location.pathname >>> ', window.location.pathname)
+      console.log('error >>> ', error.response?.status)
       if (
         error.response?.status === 401 &&
         error.response.data.detail ===
@@ -67,30 +64,39 @@ export function ProfileProvider({ children }: AuthProviderProps) {
           api
             .post('/jwt/refresh/')
             .then((response) => {
-              if (response.status >= 400) {
+              if (response.status === 401) {
                 window.location.replace(`${env.VITE_DASHBOARD_URL}/sign-in`)
-                }
+              }
             })
-            .catch(() => {
-              window.location.replace(`${env.VITE_DASHBOARD_URL}/sign-in`)
+            .catch((e) => {
+              if (e.status === 401) {
+                window.location.replace(`${env.VITE_DASHBOARD_URL}/sign-in`)
+              }
             })
         }
       } else {
         if (!refreshing) {
           refreshing = true
-          logout().then(() => {
-            window.location.replace(`${env.VITE_DASHBOARD_URL}/sign-in`)
-          })
+          if (e.status === 401) {
+            logout().then(() => {
+              window.location.replace(`${env.VITE_DASHBOARD_URL}/sign-in`)
+            })
+          }
         }
       }
     },
   )
 
-
   return (
-    <ProfileContext.Provider value={{ profile, isLoadingProfile, activeRestaurant, setActiveRestaurant }}>
+    <ProfileContext.Provider
+      value={{
+        profile,
+        isLoadingProfile,
+        activeRestaurant,
+        setActiveRestaurant,
+      }}
+    >
       {children}
     </ProfileContext.Provider>
-  );
+  )
 }
-

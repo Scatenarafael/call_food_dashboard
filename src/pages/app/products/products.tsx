@@ -69,7 +69,7 @@ export function Products() {
                   Criar
                 </Button>
               </DialogTrigger>
-              <ProductForm openCallback={setIsCreationOpen} />
+              <ProductForm openCallback={setIsCreationOpen} product={null} />
             </Dialog>
           </div>
           <div className="rounded-md border">
@@ -78,7 +78,7 @@ export function Products() {
                 <TableRow>
                   <TableHead className="w-[64px]"></TableHead>
                   <TableHead className="w-[84px]"></TableHead>
-                  <TableHead className="w-[180px]">Identificador</TableHead>
+                  <TableHead className="w-[340px]">Identificador</TableHead>
                   <TableHead className="w-[180px]">Nome</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead className="w-[140px]">Preço</TableHead>

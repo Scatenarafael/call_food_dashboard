@@ -1,8 +1,10 @@
-import { Image, Pencil, Search } from 'lucide-react'
+import { Image, Pencil, Search, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { ProductProps } from '@/api/get-products'
 import { OrderStatus } from '@/components/order-status'
+import { RemoveProductDialogContent } from '@/components/remove-product-dialog-content'
+import { AlertDialog, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -60,7 +62,8 @@ export function ProductTableRow({ product }: ProductTableRowProps) {
         )}
       </TableCell>
       <TableCell className="font-mono text-xs font-medium">
-        ...{product.id.split('-')[product.id.split('-').length - 1]}
+        {/* ...{product.id.split('-')[product.id.split('-').length - 1]} */}
+        {product.id}
       </TableCell>
       <TableCell className="font-medium">{product.name}</TableCell>
       <TableCell className="font-medium">{product.description}</TableCell>
@@ -71,7 +74,7 @@ export function ProductTableRow({ product }: ProductTableRowProps) {
         })}
       </TableCell>
       <TableCell />
-      <TableCell className="font-medium">
+      <TableCell className="flex items-center gap-4 font-medium">
         <Dialog open={isCreationOpen} onOpenChange={setIsCreationOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="xs">
@@ -80,6 +83,14 @@ export function ProductTableRow({ product }: ProductTableRowProps) {
           </DialogTrigger>
           <ProductForm product={product} openCallback={setIsCreationOpen} />
         </Dialog>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="xs">
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </AlertDialogTrigger>
+          <RemoveProductDialogContent id={product.id} />
+        </AlertDialog>
       </TableCell>
     </TableRow>
   )

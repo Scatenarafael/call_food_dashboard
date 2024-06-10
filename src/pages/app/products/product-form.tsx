@@ -1,3 +1,12 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { InputNumberFormat } from '@react-input/number-format'
+import { useMutation } from '@tanstack/react-query'
+import { Image } from 'lucide-react'
+import { ChangeEvent, useContext, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
 import { createProduct } from '@/api/create-product'
 import { ProductProps } from '@/api/get-products'
 import { updateProduct } from '@/api/update-product'
@@ -14,14 +23,6 @@ import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { ProfileContext } from '@/contexts/profile-context'
 import { queryClient } from '@/lib/react-query'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { InputNumberFormat } from '@react-input/number-format'
-import { useMutation } from '@tanstack/react-query'
-import { Image } from 'lucide-react'
-import { ChangeEvent, useContext, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { z } from 'zod'
 
 const productSaveSchema = z.object({
   restaurant: z.string(),
@@ -49,19 +50,23 @@ export type ProductSaveSchema = z.infer<typeof productSaveSchema>
 
 interface ProductFormProps {
   openCallback: (value: boolean) => void
-  product?: ProductProps
+  product: ProductProps | null
 }
 
 export function ProductForm({ openCallback, product }: ProductFormProps) {
   const [price, setPrice] = useState(
     product && product.priceInCents
-      ? `R$${(product.priceInCents / 100).toFixed(2)}`
+      ? (product.priceInCents / 100).toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        })
       : '',
   )
-  const [imageURL, setImageURL] = useState<string | null>(null)
+  const [imageURL, setImageURL] = useState<string | null>(
+    product?.id ? product.image : null,
+  )
 
-  
-  const { profile, activeRestaurant } = useContext(ProfileContext) 
+  const { profile, activeRestaurant } = useContext(ProfileContext)
 
   const {
     register,
@@ -75,10 +80,7 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
       description: product?.description || '',
       name: product?.name || '',
       priceInCents: product?.priceInCents || 0,
-      restaurant:
-        product?.restaurant ||
-        activeRestaurant?.id ||
-        '',
+      restaurant: product?.restaurant || activeRestaurant?.id || '',
       image: product?.image || null,
     },
   })
@@ -93,12 +95,10 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
       }
     },
     onError: () => {
-      toast.error("Produto não pode ser salvo")
+      toast.error('Produto não pode ser salvo')
     },
     onSuccess: () => {
-      toast.success(
-        `Producto salvo com sucesso!`,
-      )
+      toast.success(`Producto salvo com sucesso!`)
       reset()
       setPrice('')
       queryClient.refetchQueries({ queryKey: ['products'] })
@@ -108,16 +108,27 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
 
   function createProductFn(data: ProductSaveSchema) {
     const formData = new FormData()
+    console.log('price >>> ', price)
+    let stringPriceInCents
 
-    data.priceInCents = Math.round(Number(price.split('$')[1]) * 100)
+    if (price.includes(',')) {
+      stringPriceInCents = `${price.split('$')[1].split(',')[0]}${price.split('$')[1].split(',')[1]}`
+    } else {
+      stringPriceInCents = `${price.split('$')[1].split('.')[0]}${price.split('$')[1].split('.')[1]}`
+    }
+
+    console.log('stringPriceInCents >>> ', Number(stringPriceInCents))
 
     formData.append('name', data.name)
-    formData.append('priceInCents', data.priceInCents)
+    formData.append('priceInCents', Number(stringPriceInCents))
     formData.append('restaurant', data.restaurant)
     formData.append('description', data.description)
-    formData.append('image', data.image)
 
-    mutation.mutate(data)
+    if (data.image.size > 0) {
+      formData.append('image', data.image)
+    }
+
+    mutation.mutate(formData)
   }
 
   function handleChooseIcon(e: ChangeEvent<HTMLInputElement>) {
@@ -127,7 +138,22 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
     if (files && files[0]) setValue('image', files[0])
   }
 
-  const productRestaurant = profile && profile.restaurants.find((restaurant) => { return restaurant.id === product?.restaurant})
+  const productRestaurant =
+    profile &&
+    profile.restaurants.find((restaurant) => {
+      return restaurant.id === product?.restaurant
+    })
+
+  useEffect(() => {
+    if (product) {
+      setPrice(
+        (product.priceInCents / 100).toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }),
+      )
+    }
+  }, [product])
   return (
     <DialogContent>
       <DialogHeader>
@@ -143,29 +169,17 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
                 <TableCell className="text-muted-foreground">Image</TableCell>
                 <TableCell className="flex items-center justify-end text-muted-foreground">
                   <label htmlFor="iconImage" className="cursor-pointer">
-                    {product && product.image ? (
+                    {!imageURL ? (
+                      // eslint-disable-next-line jsx-a11y/alt-text
+                      <Image className="h-5 w-5" />
+                    ) : (
                       <img
-                        src={product.image}
+                        src={imageURL}
                         width={100}
                         height={100}
                         alt="SiteTypeIcon"
                         className="mx-auto content-evenly rounded-lg"
                       />
-                    ) : (
-                      <>
-                        {!imageURL ? (
-                          // eslint-disable-next-line jsx-a11y/alt-text
-                          <Image className="h-5 w-5" />
-                        ) : (
-                          <img
-                            src={imageURL}
-                            width={100}
-                            height={100}
-                            alt="SiteTypeIcon"
-                            className="mx-auto content-evenly rounded-lg"
-                          />
-                        )}
-                      </>
                     )}
                   </label>
                   <input
@@ -182,7 +196,8 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
                   Restaurante
                 </TableCell>
                 <TableCell className="flex justify-end">
-                  {productRestaurant && productRestaurant.name || activeRestaurant?.name}
+                  {(productRestaurant && productRestaurant.name) ||
+                    activeRestaurant?.name}
                 </TableCell>
               </TableRow>
               <TableRow>

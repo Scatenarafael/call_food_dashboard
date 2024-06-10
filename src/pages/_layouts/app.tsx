@@ -4,7 +4,6 @@ import { Header } from '@/components/header'
 import { ProfileProvider } from '@/contexts/profile-context'
 
 export function AppLayout() {
-
   // useEffect(() => {
   //   const interceptorId = api.interceptors.response.use(
   //     (response) => response,
@@ -33,7 +32,7 @@ export function AppLayout() {
         <Header />
 
         <div className="flex flex-1 flex-col gap-4 p-8 pt-6">
-            <Outlet />
+          <Outlet />
         </div>
       </div>
     </ProfileProvider>
