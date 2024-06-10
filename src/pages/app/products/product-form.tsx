@@ -1,14 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { InputNumberFormat } from '@react-input/number-format'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { Image } from 'lucide-react'
-import { ChangeEvent, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
 import { createProduct } from '@/api/create-product'
 import { ProductProps } from '@/api/get-products'
-import { getProfile } from '@/api/get-profile'
 import { updateProduct } from '@/api/update-product'
 import { InputError } from '@/components/input-error'
 import { Button } from '@/components/ui/button'
@@ -21,8 +12,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { useToast } from '@/components/ui/use-toast'
+import { ProfileContext } from '@/contexts/profile-context'
 import { queryClient } from '@/lib/react-query'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { InputNumberFormat } from '@react-input/number-format'
+import { useMutation } from '@tanstack/react-query'
+import { Image } from 'lucide-react'
+import { ChangeEvent, useContext, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 const productSaveSchema = z.object({
   restaurant: z.string(),
@@ -61,14 +60,9 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
   )
   const [imageURL, setImageURL] = useState<string | null>(null)
 
-  const { toast } = useToast()
+  
+  const { profile, activeRestaurant } = useContext(ProfileContext) 
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile,
-  })
-
-  console.log('price >>> ', price)
   const {
     register,
     handleSubmit,
@@ -81,13 +75,17 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
       description: product?.description || '',
       name: product?.name || '',
       priceInCents: product?.priceInCents || 0,
-      restaurant: product?.restaurant || profile?.restaurants[0].id || '',
+      restaurant:
+        product?.restaurant ||
+        activeRestaurant?.id ||
+        '',
       image: product?.image || null,
     },
   })
 
   const mutation = useMutation({
     mutationFn: async (data: ProductSaveSchema) => {
+      console.log('mutationFn >> data >>> ', data)
       if (!product) {
         createProduct({ data })
       } else {
@@ -95,16 +93,12 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
       }
     },
     onError: () => {
-      toast({
-        title: `Could not save product!`,
-        variant: 'destructive',
-      })
+      toast.error("Produto não pode ser salvo")
     },
     onSuccess: () => {
-      toast({
-        title: `Product successfully saved!`,
-        variant: 'success',
-      })
+      toast.success(
+        `Producto salvo com sucesso!`,
+      )
       reset()
       setPrice('')
       queryClient.refetchQueries({ queryKey: ['products'] })
@@ -123,7 +117,7 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
     formData.append('description', data.description)
     formData.append('image', data.image)
 
-    mutation.mutateAsync(data)
+    mutation.mutate(data)
   }
 
   function handleChooseIcon(e: ChangeEvent<HTMLInputElement>) {
@@ -133,6 +127,7 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
     if (files && files[0]) setValue('image', files[0])
   }
 
+  const productRestaurant = profile && profile.restaurants.find((restaurant) => { return restaurant.id === product?.restaurant})
   return (
     <DialogContent>
       <DialogHeader>
@@ -187,7 +182,7 @@ export function ProductForm({ openCallback, product }: ProductFormProps) {
                   Restaurante
                 </TableCell>
                 <TableCell className="flex justify-end">
-                  {profile?.restaurants[0].name}
+                  {productRestaurant && productRestaurant.name || activeRestaurant?.name}
                 </TableCell>
               </TableRow>
               <TableRow>

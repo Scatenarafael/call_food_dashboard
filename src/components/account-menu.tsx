@@ -1,12 +1,13 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { Building, ChevronDown, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import { getProfile } from '@/api/get-profile'
 import { SignOut } from '@/api/sign-out'
 
+import { ProfileContext } from '@/contexts/profile-context'
+import { useContext } from 'react'
+import { StoreProfileDialog } from './store-profile-dialog'
 import { Button } from './ui/button'
-// import { StoreProfileDialog } from './store-profile-dialog'
 import { Dialog, DialogTrigger } from './ui/dialog'
 import {
   DropdownMenu,
@@ -17,23 +18,17 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import { Skeleton } from './ui/skeleton'
-// import { Skeleton } from './ui/skeleton'
 
 export function AccountMenu() {
   const navigate = useNavigate()
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile,
-    staleTime: Infinity,
-  })
-
-  // const { data: managedRestaurant, isLoading: isLoadingManagedRestaurant } =
-  // useQuery({
-  //   queryKey: ['managed-restaurant'],
-  //   queryFn: getManagedRestaurant,
+  // const { data: profile, isLoading: isLoadingProfile } = useQuery({
+  //   queryKey: ['profile'],
+  //   queryFn: getProfile,
   //   staleTime: Infinity,
   // })
+
+  const { profile, isLoadingProfile, activeRestaurant } = useContext(ProfileContext)
 
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: SignOut,
@@ -42,6 +37,7 @@ export function AccountMenu() {
     },
   })
 
+  console.log("profile in Account-menu >>> ", profile)
   return (
     <Dialog>
       <DropdownMenu>
@@ -53,7 +49,7 @@ export function AccountMenu() {
             {isLoadingProfile ? (
               <Skeleton className="h-4 w-40" />
             ) : (
-              profile?.restaurants[0]?.name || 'No restaurant'
+              activeRestaurant?.name || 'No restaurant'
             )}
             <ChevronDown />
           </Button>
@@ -77,9 +73,9 @@ export function AccountMenu() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DialogTrigger asChild>
-            <DropdownMenuItem>
-              <Building className="mr-2 h-4 w-4" />
-              <span>Perfil da loja</span>
+            <DropdownMenuItem className='cursor-pointer'>
+                <Building className="mr-2 h-4 w-4" />
+                <span>Perfil da loja</span>
             </DropdownMenuItem>
           </DialogTrigger>
           <DropdownMenuItem
@@ -94,7 +90,7 @@ export function AccountMenu() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* <StoreProfileDialog /> */}
+      <StoreProfileDialog />
     </Dialog>
   )
 }

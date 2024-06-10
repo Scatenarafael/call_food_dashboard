@@ -4,8 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import { RouterProvider } from 'react-router-dom'
 
-import { Toaster } from '@/components/ui/toaster'
-
+import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from './components/theme/theme-provider'
 import { queryClient } from './lib/react-query'
 import { router } from './routes'
@@ -15,8 +14,8 @@ export function App() {
     <HelmetProvider>
       <ThemeProvider storageKey="call_food_dashboard" defaultTheme="dark">
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <Toaster />
+            <RouterProvider router={router} />
+            <Toaster />
         </QueryClientProvider>
       </ThemeProvider>
     </HelmetProvider>
